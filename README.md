@@ -3,15 +3,19 @@
 FragmentViewBindingDelegate-KT contains a helper delegate for auto-clearing the binding variable when the Fragment view is destroyed.
 
 ``` kotlin
-class MyFragment: Fragment(R.layout.my_fragment) {
-    private val binding by viewBinding(MyFragmentBinding::bind)
+class MyFragment: Fragment() {
+
+    private val binding by viewBinding(MyFragmentBinding::inflate)
     
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         
-        val binding = binding
+        // binding is ready to be used!
         
-        // ...
+        // ... if UI is not desired return null
+        return binding.root
     }
 }
 ```
