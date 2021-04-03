@@ -71,8 +71,8 @@ Due to a transitive dependency on `lifecycle-common-java8`, the following block 
 
 ``` groovy
     compileOptions {
-        this.sourceCompatibility(JavaVersion.VERSION_1_8)
-        this.targetCompatibility(JavaVersion.VERSION_1_8)
+        sourceCompatibility(JavaVersion.VERSION_1_8)
+        targetCompatibility(JavaVersion.VERSION_1_8)
     }
 
     kotlinOptions {
