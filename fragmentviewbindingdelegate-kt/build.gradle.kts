@@ -41,10 +41,7 @@ android {
 }
 
 dependencies {
-    //implementation(mapOf("dir" to "libs", "include" to listOf("*.jar")))
-    api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
     implementation("androidx.fragment:fragment-ktx:1.2.5")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
 
     testImplementation("junit:junit:4.13.1")
     testImplementation("org.assertj:assertj-core:3.16.1")

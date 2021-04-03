@@ -17,57 +17,42 @@ package com.zhuinden.fragmentviewbindingdelegatekt
 
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.viewbinding.ViewBinding
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class FragmentViewBindingDelegate<T : ViewBinding>(
-    val fragment: Fragment,
-    val viewBindingFactory: (View) -> T
+    private val viewBindingFactory: (View) -> T
 ) : ReadOnlyProperty<Fragment, T> {
+
     private var binding: T? = null
 
-    init {
-        fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            val viewLifecycleOwnerLiveDataObserver =
-                Observer<LifecycleOwner?> {
-                    val viewLifecycleOwner = it ?: return@Observer
+    override fun getValue(thisRef: Fragment, property: KProperty<*>): T =
+        binding ?: createBinding(thisRef)
 
-                    viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                        override fun onDestroy(owner: LifecycleOwner) {
-                            binding = null
-                        }
-                    })
+    private fun createBinding(fragment: Fragment): T {
+        val viewLifecycle = fragment.viewLifecycleOwner.lifecycle
+
+        check(viewLifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
+            "Must not attempt to get bindings when Fragment views are destroyed."
+        }
+
+        val lifecycleCallback = object : FragmentManager.FragmentLifecycleCallbacks() {
+            override fun onFragmentViewDestroyed(fm: FragmentManager, f: Fragment) {
+                if (f === fragment) {
+                    binding = null
+                    fragment.parentFragmentManager.unregisterFragmentLifecycleCallbacks(this)
                 }
-
-            override fun onCreate(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.observeForever(viewLifecycleOwnerLiveDataObserver)
             }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.removeObserver(viewLifecycleOwnerLiveDataObserver)
-            }
-        })
-    }
-
-    override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
-        val binding = binding
-        if (binding != null) {
-            return binding
         }
-
-        val lifecycle = fragment.viewLifecycleOwner.lifecycle
-        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
-            throw IllegalStateException("Should not attempt to get bindings when Fragment views are destroyed.")
-        }
-
-        return viewBindingFactory(thisRef.requireView()).also { this.binding = it }
+        fragment.parentFragmentManager.registerFragmentLifecycleCallbacks(lifecycleCallback, false)
+        return viewBindingFactory(fragment.requireView()).also { binding = it }
     }
 }
 
-fun <T : ViewBinding> Fragment.viewBinding(viewBindingFactory: (View) -> T) =
-    FragmentViewBindingDelegate(this, viewBindingFactory)
+@Suppress("unused")
+fun <T : ViewBinding> Fragment.viewBinding(
+    viewBindingFactory: (View) -> T
+): FragmentViewBindingDelegate<T> = FragmentViewBindingDelegate(viewBindingFactory)
