@@ -15,6 +15,7 @@
  */
 package com.zhuinden.fragmentviewbindingdelegatekt
 
+import android.view.LayoutInflater
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -27,7 +28,7 @@ import kotlin.reflect.KProperty
 
 class FragmentViewBindingDelegate<T : ViewBinding>(
     val fragment: Fragment,
-    val viewBindingFactory: (View) -> T
+    val viewBindingFactory: (Fragment) -> T
 ) : ReadOnlyProperty<Fragment, T> {
     private var binding: T? = null
 
@@ -65,9 +66,18 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
             throw IllegalStateException("Should not attempt to get bindings when Fragment views are destroyed.")
         }
 
-        return viewBindingFactory(thisRef.requireView()).also { this.binding = it }
+        return viewBindingFactory(thisRef).also { this.binding = it }
     }
 }
 
-fun <T : ViewBinding> Fragment.viewBinding(viewBindingFactory: (View) -> T) =
-    FragmentViewBindingDelegate(this, viewBindingFactory)
+@Suppress("unused")
+inline fun <T : ViewBinding> Fragment.viewBinding(
+    crossinline viewBindingFactory: (View) -> T
+): FragmentViewBindingDelegate<T> =
+    FragmentViewBindingDelegate(this) { f -> viewBindingFactory(f.requireView()) }
+
+@Suppress("unused")
+inline fun <T : ViewBinding> Fragment.viewInflateBinding(
+    crossinline bindingInflater: (LayoutInflater) -> T
+): FragmentViewBindingDelegate<T> =
+    FragmentViewBindingDelegate(this) { f -> bindingInflater(f.layoutInflater) }
