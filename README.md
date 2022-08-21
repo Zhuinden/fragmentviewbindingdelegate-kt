@@ -57,14 +57,14 @@ and then, add the dependency to your module's `build.gradle.kts` (or `build.grad
 
 ``` kotlin
 // build.gradle.kts
-implementation("com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.0")
+implementation("com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.1")
 ```
 
 or
 
 ``` groovy
 // build.gradle
-implementation 'com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.0'
+implementation 'com.github.Zhuinden:fragmentviewbindingdelegate-kt:1.0.1'
 ```
 
 Due to a transitive dependency on `lifecycle-common-java8`, the following block must also be added to the `android {` block in `build.gradle`:
@@ -90,7 +90,7 @@ And you also need to enable `viewBinding`.
 
 ## License
 
-    Copyright 2021 Gabor Varadi
+    Copyright 2021-2022 Gabor Varadi
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

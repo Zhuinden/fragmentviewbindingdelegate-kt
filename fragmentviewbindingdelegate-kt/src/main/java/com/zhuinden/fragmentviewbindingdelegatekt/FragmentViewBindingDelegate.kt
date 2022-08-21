@@ -33,23 +33,17 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
 
     init {
         fragment.lifecycle.addObserver(object : DefaultLifecycleObserver {
-            val viewLifecycleOwnerLiveDataObserver =
-                Observer<LifecycleOwner?> {
-                    val viewLifecycleOwner = it ?: return@Observer
-
-                    viewLifecycleOwner.lifecycle.addObserver(object : DefaultLifecycleObserver {
-                        override fun onDestroy(owner: LifecycleOwner) {
-                            binding = null
-                        }
-                    })
+            val viewLifecycleOwnerObserver = Observer<LifecycleOwner?> { owner ->
+                if (owner == null) {
+                    binding = null
                 }
-
+            }
             override fun onCreate(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.observeForever(viewLifecycleOwnerLiveDataObserver)
+                fragment.viewLifecycleOwnerLiveData.observeForever(viewLifecycleOwnerObserver)
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
-                fragment.viewLifecycleOwnerLiveData.removeObserver(viewLifecycleOwnerLiveDataObserver)
+                fragment.viewLifecycleOwnerLiveData.removeObserver(viewLifecycleOwnerObserver)
             }
         })
     }
