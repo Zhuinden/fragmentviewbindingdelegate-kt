@@ -54,9 +54,8 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
             return binding
         }
 
-        val lifecycle = thisRef.viewLifecycleOwner.lifecycle
-        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.INITIALIZED)) {
-            throw IllegalStateException("Should not attempt to get bindings when Fragment views are destroyed.")
+        if (thisRef.view == null) {
+            throw IllegalStateException("Should not attempt to get bindings when the Fragment's view is null.")
         }
 
         return viewBindingFactory(thisRef.requireView()).also { this.binding = it }
