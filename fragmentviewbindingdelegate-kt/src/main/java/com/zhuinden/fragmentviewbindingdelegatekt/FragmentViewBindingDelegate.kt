@@ -50,15 +50,19 @@ class FragmentViewBindingDelegate<T : ViewBinding>(
 
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         val binding = binding
-        if (binding != null) {
+
+        if (binding != null && binding.root === thisRef.view) {
             return binding
         }
 
-        if (thisRef.view == null) {
+        val view = thisRef.view
+
+        @Suppress("FoldInitializerAndIfToElvis")
+        if (view == null) {
             throw IllegalStateException("Should not attempt to get bindings when the Fragment's view is null.")
         }
 
-        return viewBindingFactory(thisRef.requireView()).also { this.binding = it }
+        return viewBindingFactory(view).also { this.binding = it }
     }
 }
 

@@ -1,5 +1,12 @@
 # Change log
 
+-FragmentViewBindingDelegate-KT 1.0.2 (2022-10-29)
+--------------------------------
+
+- CHANGE: use `view != null` instead of `lifecycle.isAtLeast(INITIALIZED)` to allow people to create and destroy a view in onDestroyView.
+
+- CHANGE: recreate binding if the view doesn't match the one in the fragment (should fix the binding in retained fragments)
+
 -FragmentViewBindingDelegate-KT 1.0.1 (2022-08-21)
 --------------------------------
 
